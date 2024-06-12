@@ -1,6 +1,6 @@
 package MyExceptions;
 
-import Transaction.Transaction;
+import Model.Transaction;
 
 import java.io.FileWriter;
 import java.io.IOException;

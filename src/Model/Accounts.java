@@ -1,9 +1,10 @@
-package Account;
+package Model;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,28 +22,29 @@ public class Accounts {
             int i;
             StringBuilder fileInfo = new StringBuilder();
             while ((i = reader.read()) != -1) {
-                fileInfo = fileInfo.append((char) i);
+                fileInfo.append((char) i);
             }
             Matcher matcher = Pattern.compile("\\S+\\|\\S+").matcher(fileInfo);
-            if (fileInfo.isEmpty()) {
-                System.out.println("Информация о счетах отсутствует!");
-            } else {
-                if (matcher.find()) {
-                    matcher.reset();
-                    while (matcher.find()) {
-                        String[] accountInfo = matcher.group().split("\\|");
-                        if (validateAcc(accountInfo[0]) && validateBalance(accountInfo[1])) {
-                            validAccounts.put(accountInfo[0], accountInfo[1]);
-                        } else {
-                            invalidAccounts.put(accountInfo[0], accountInfo[1]);
-                        }
+            if (matcher.find()) {
+                matcher.reset();
+                while (matcher.find()) {
+                    String[] accountInfo = matcher.group().split("\\|");
+                    if (validateAcc(accountInfo[0]) && validateBalance(accountInfo[1])) {
+                        validAccounts.put(accountInfo[0], accountInfo[1]);
+                    } else {
+                        invalidAccounts.put(accountInfo[0], accountInfo[1]);
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exceptionOne) {
+            System.out.println(exceptionOne.getMessage());
+            try (FileWriter writer = new FileWriter("src/Report.txt")) {
+                LocalDateTime localDateTime = LocalDateTime.now();
+                writer.write(localDateTime.format(DateTimeFormatter.ofPattern(Transaction.dayTimeFormat)) +
+                        "|файл Accounts.txt отсутствует\n");
+            } catch (IOException exceptionTwo) {
+                System.out.println(exceptionTwo.getMessage());
+            }
         }
     }
 
